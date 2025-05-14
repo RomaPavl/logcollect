@@ -33,36 +33,36 @@ This project automates SFTP file‐exchange between three Vagrant VMs, collects 
 
 ## 🛠 2. Prepare your host logs directory
 By default we mount:
-```bash
-project-root/logs
+   ```bash
+   project-root/logs
 
 into the Docker container at /app/logs. Make sure it exists and contains your .log files:
-```bash
-ls logs/*.log
+   ```bash
+   ls logs/*.log
 
 ## 📦 3. Build the Dockerized Flask dashboard
 Ensure you have requirements.txt, logcollect.py, templates/ and static/ in the project root.
 
 Build the Alpine‐based Docker image:
-```bash
-docker build -t logdashboard:latest .
+   ```bash
+   docker build -t logdashboard:latest .
 Verify the image size:
-```bash
-docker images logdashboard:latest
+   ```bash
+   docker images logdashboard:latest
 
 ## ▶️ 4. Run the container
 Mount your host logs, set the env-var, and expose port 5000:
-```bash
-docker run -d \
-  --name logdashboard \
-  -p 5000:5000 \
-  -e LOG_DIR=/app/logs \
-  -v "$(pwd)/logs:/app/logs" \
-  logdashboard:latest
--v "$(pwd)/logs:/app/logs"
+   ```bash
+   docker run -d \
+     --name logdashboard \
+     -p 5000:5000 \
+     -e LOG_DIR=/app/logs \
+     -v "$(pwd)/logs:/app/logs" \
+     logdashboard:latest
+   -v "$(pwd)/logs:/app/logs"
 mounts your host folder containing .log files into the container.
-```bash
--e LOG_DIR=/app/logs"
+   ```bash
+   -e LOG_DIR=/app/logs"
 
 tells the app where to read logs inside the container.
 
