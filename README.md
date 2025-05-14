@@ -59,7 +59,6 @@ docker run -d \
   -v "$(pwd)/logs:/app/logs" \
   logdashboard:latest
 -v "$(pwd)/logs:/app/logs"
-
 mounts your host folder containing .log files into the container.
 ```bash
 -e LOG_DIR=/app/logs"
