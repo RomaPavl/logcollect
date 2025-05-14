@@ -40,7 +40,7 @@ By default we mount:
 into the Docker container at /app/logs. Make sure it exists and contains your .log files:
    ```bash
    ls logs/*.log
-   
+   ```
 
 ## 📦 3. Build the Dockerized Flask dashboard
 Ensure you have requirements.txt, logcollect.py, templates/ and static/ in the project root.
@@ -48,9 +48,11 @@ Ensure you have requirements.txt, logcollect.py, templates/ and static/ in the p
 Build the Alpine‐based Docker image:
    ```bash
    docker build -t logdashboard:latest .
+   ```
 Verify the image size:
    ```bash
    docker images logdashboard:latest
+   ```
 
 ## ▶️ 4. Run the container
 Mount your host logs, set the env-var, and expose port 5000:
@@ -62,9 +64,12 @@ Mount your host logs, set the env-var, and expose port 5000:
      -v "$(pwd)/logs:/app/logs" \
      logdashboard:latest
    -v "$(pwd)/logs:/app/logs"
+   ```
 mounts your host folder containing .log files into the container.
    ```bash
    -e LOG_DIR=/app/logs"
+   ```
+
 
 tells the app where to read logs inside the container.
 
