@@ -35,6 +35,7 @@ This project automates SFTP file‐exchange between three Vagrant VMs, collects 
 By default we mount:
 ```bash
 project-root/logs
+
 into the Docker container at /app/logs. Make sure it exists and contains your .log files:
 ```bash
 ls logs/*.log
