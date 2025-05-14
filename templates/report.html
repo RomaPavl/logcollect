@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}SFTP Summary{% endblock %}
+
+{% block content %}
+<h2 class="mb-3">📊 SFTP Sync Summary</h2>
+
+<form method="get" class="row g-3 mb-4">
+  <div class="col-auto">
+    <label class="form-label">Hostname</label>
+    <select name="hostname" class="form-select">
+      <option value="">All</option>
+      {% for h in hostnames %}
+        <option value="{{ h[0] }}" {% if filters.hostname==h[0] %}selected{% endif %}>{{ h[0] }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="col-auto">
+    <label class="form-label">IP</label>
+    <select name="ip" class="form-select">
+      <option value="">All</option>
+      {% for i in ips %}
+        <option value="{{ i[0] }}" {% if filters.ip==i[0] %}selected{% endif %}>{{ i[0] }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="col-auto">
+    <label class="form-label">From</label>
+    <input type="date" name="from" class="form-control" value="{{ filters.from }}">
+  </div>
+  <div class="col-auto">
+    <label class="form-label">To</label>
+    <input type="date" name="to"   class="form-control" value="{{ filters.to }}">
+  </div>
+  <div class="col-auto align-self-end">
+    <button type="submit" class="btn btn-primary">Filter</button>
+    <a href="{{ url_for('summary_view') }}" class="btn btn-secondary">Reset</a>
+  </div>
+</form>
+
+<canvas id="summaryChart" class="mb-4" height="100"></canvas>
+
+<table class="table table-striped">
+  <thead><tr><th>User</th><th>IP</th><th>Files Sent</th></tr></thead>
+  <tbody>
+    {% for r in data %}
+    <tr>
+      <td><a href="{{ url_for('user_view', username=r.hostname) }}">{{ r.hostname }}</a></td>
+      <td>{{ r.ip }}</td>
+      <td>{{ r.count }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<p class="text-muted">Total: {{ data|length }} entries</p>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(async () => {
+  const ctx = document.getElementById('summaryChart').getContext('2d');
+  // Передаємо ті ж фільтри в API, щоб графік відповідав таблиці
+  const params = new URLSearchParams({
+    hostname: '{{ filters.hostname }}',
+    ip: '{{ filters.ip }}',
+    from: '{{ filters.from }}',
+    to: '{{ filters.to }}'
+  });
+  const res = await fetch('/api/report?' + params);
+  const json = await res.json();
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: json.map(x => `${x.hostname}(.${x.ip.split('.').pop()})`),
+      datasets: [{ label: 'Files Sent', data: json.map(x => x.count) }]
+    },
+    options: { scales: { y: { beginAtZero: true } } }
+  });
+})();
+</script>
+{% endblock %}

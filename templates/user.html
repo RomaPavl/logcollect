@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}User {{ username }} Report{% endblock %}
+
+{% block content %}
+<h2 class="mb-3">👤 Statistics for {{ username }}</h2>
+
+<!-- Фільтри для користувача -->
+<form method="get" class="row g-3 mb-4 align-items-end">
+  <div class="col-auto">
+    <label for="ipSelect" class="form-label">IP</label>
+    <select id="ipSelect" name="ip" class="form-select">
+      <option value="">All IPs</option>
+      {% for i in ips %}
+      <option value="{{ i[0] }}" {% if filters.ip==i[0] %}selected{% endif %}>{{ i[0] }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="col-auto">
+    <label for="fromDate" class="form-label">From</label>
+    <input type="date" id="fromDate" name="from" class="form-control" value="{{ filters.from }}">
+  </div>
+  <div class="col-auto">
+    <label for="toDate" class="form-label">To</label>
+    <input type="date" id="toDate" name="to" class="form-control" value="{{ filters.to }}">
+  </div>
+  <div class="col-auto">
+    <button type="submit" class="btn btn-primary">Filter</button>
+    <a href="{{ url_for('user_view', username=username) }}" class="btn btn-secondary">Reset</a>
+  </div>
+</form>
+
+<!-- Інтерактивний графік -->
+<canvas id="userChart" class="mb-4" height="100"></canvas>
+
+<!-- Таблиця логів -->
+<table class="table table-bordered">
+  <thead><tr><th>Timestamp</th><th>Filename</th><th>IP</th></tr></thead>
+  <tbody>
+    {% for log in logs %}
+    <tr>
+      <td>{{ log.timestamp.strftime('%Y-%m-%d %H:%M:%S') if log.timestamp else '–' }}</td>
+      <td>{{ log.filename }}</td>
+      <td>{{ log.ip }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<a href="/" class="btn btn-secondary mt-3">Back to Summary</a>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(async () => {
+  const ctx = document.getElementById('userChart').getContext('2d');
+  const params = new URLSearchParams({
+    ip: '{{ filters.ip }}',
+    from: '{{ filters.from }}',
+    to:   '{{ filters.to }}'
+  });
+  const res = await fetch(`/api/user/{{ username }}?` + params);
+  const data = await res.json();
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: data.map(x => x.ip),
+      datasets: [{ label: 'Files Sent', data: data.map(x => x.count) }]
+    },
+    options: { scales: { y: { beginAtZero: true } } }
+  });
+})();
+</script>
+{% endblock %}

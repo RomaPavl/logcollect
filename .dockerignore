@@ -1,0 +1,11 @@
+.venv
+__pycache__
+*.pyc
+*.log
+logs/
+*.db
+*.pem
+*.key
+*.pub
+*.sh
+Vagrantfile
